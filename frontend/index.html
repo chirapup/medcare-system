@@ -3,80 +3,266 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MedCare System - Hospital Dashboard</title>
+    <title>MedCare EHR System - Hospital Dashboard</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="header-content">
-                <h1>🏥 MedCare System</h1>
-                <p>Patient-Hospital Workflow Optimization</p>
+    <!-- Top Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <div class="logo">
+                <span class="logo-icon">⚕</span>
+                <span class="logo-text">MedCare<span class="logo-sub">EHR</span></span>
             </div>
-            <div class="header-stats" id="headerStats"></div>
-        </header>
-
-        <nav class="tabs">
-            <button class="tab active" onclick="showTab('patients')">Patients</button>
-            <button class="tab" onclick="showTab('transfers')">Transfers</button>
-            <button class="tab" onclick="showTab('hospitals')">Hospitals</button>
-        </nav>
-
-        <!-- Patients Tab -->
-        <div id="patients" class="tab-content active">
-            <div class="section-header">
-                <h2>Patient Management</h2>
-                <button class="btn-primary" onclick="showAddPatientModal()">+ Add Patient</button>
-            </div>
-
-            <div class="filters">
-                <select id="hospitalFilter" onchange="loadPatients()">
-                    <option value="">All Hospitals</option>
-                </select>
-                <select id="triageFilter" onchange="loadPatients()">
-                    <option value="">All Triage Levels</option>
-                    <option value="critical">Critical</option>
-                    <option value="urgent">Urgent</option>
-                    <option value="semi-urgent">Semi-Urgent</option>
-                    <option value="non-urgent">Non-Urgent</option>
-                </select>
-            </div>
-
-            <div id="patientsList" class="data-table"></div>
+            <div class="nav-divider"></div>
+            <span class="facility-name">San Jose Health Network</span>
         </div>
-
-        <!-- Transfers Tab -->
-        <div id="transfers" class="tab-content">
-            <div class="section-header">
-                <h2>Patient Transfers</h2>
-                <button class="btn-primary" onclick="showAddTransferModal()">+ New Transfer</button>
+        <div class="nav-right">
+            <div class="user-info">
+                <span class="user-role">Administrator</span>
+                <span class="user-name">System Admin</span>
             </div>
-
-            <div class="filters">
-                <select id="transferStatusFilter" onchange="loadTransfers()">
-                    <option value="">All Statuses</option>
-                    <option value="pending">Pending</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="completed">Completed</option>
-                    <option value="cancelled">Cancelled</option>
-                </select>
-            </div>
-
-            <div id="transfersList" class="data-table"></div>
+            <div class="system-time" id="systemTime"></div>
         </div>
+    </nav>
 
-        <!-- Hospitals Tab -->
-        <div id="hospitals" class="tab-content">
-            <div class="section-header">
-                <h2>Hospital Network</h2>
-                <button class="btn-primary" onclick="showAddHospitalModal()">+ Add Hospital</button>
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <div class="section-label">PATIENT MANAGEMENT</div>
+                <button class="sidebar-item active" data-view="patients">
+                    <span class="item-icon">👤</span>
+                    <span class="item-text">Patient Registry</span>
+                </button>
+                <button class="sidebar-item" data-view="transfers">
+                    <span class="item-icon">🚑</span>
+                    <span class="item-text">Transfer Queue</span>
+                </button>
             </div>
-            <div id="hospitalsList" class="data-table"></div>
-        </div>
+            
+            <div class="sidebar-section">
+                <div class="section-label">FACILITY MANAGEMENT</div>
+                <button class="sidebar-item" data-view="hospitals">
+                    <span class="item-icon">🏥</span>
+                    <span class="item-text">Network Facilities</span>
+                </button>
+                <button class="sidebar-item" data-view="capacity">
+                    <span class="item-icon">📊</span>
+                    <span class="item-text">Bed Capacity</span>
+                </button>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="section-label">SYSTEM</div>
+                <button class="sidebar-item" data-view="analytics">
+                    <span class="item-icon">📈</span>
+                    <span class="item-text">Analytics</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Content Area -->
+        <main class="content-area">
+            <!-- Patients View -->
+            <div id="patients-view" class="view-container active">
+                <div class="view-header">
+                    <div class="view-title">
+                        <h1>Patient Registry</h1>
+                        <span class="record-count" id="patientCount">0 patients</span>
+                    </div>
+                    <div class="view-actions">
+                        <button class="btn-secondary" onclick="refreshPatients()">
+                            <span>↻</span> Refresh
+                        </button>
+                        <button class="btn-primary" onclick="alert('Add patient form - Coming soon')">
+                            <span>+</span> New Patient
+                        </button>
+                    </div>
+                </div>
+
+                <div class="filter-bar">
+                    <div class="filter-group">
+                        <label>Facility</label>
+                        <select id="patientHospitalFilter" onchange="loadPatients()">
+                            <option value="">All Facilities</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Triage Level</label>
+                        <select id="patientTriageFilter" onchange="loadPatients()">
+                            <option value="">All Levels</option>
+                            <option value="CRITICAL">Level 1 - Critical</option>
+                            <option value="URGENT">Level 2 - Urgent</option>
+                            <option value="SEMI_URGENT">Level 3 - Semi-Urgent</option>
+                            <option value="NON_URGENT">Level 4 - Non-Urgent</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Search MRN</label>
+                        <input type="text" placeholder="Enter MRN..." class="search-input">
+                    </div>
+                </div>
+
+                <div class="data-grid">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>MRN</th>
+                                <th>Patient Name</th>
+                                <th>DOB / Age</th>
+                                <th>Triage</th>
+                                <th>Facility</th>
+                                <th>Admission Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="patientsTableBody">
+                            <tr class="loading-row">
+                                <td colspan="7">Loading patient data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Transfers View -->
+            <div id="transfers-view" class="view-container">
+                <div class="view-header">
+                    <div class="view-title">
+                        <h1>Transfer Queue</h1>
+                        <span class="record-count" id="transferCount">0 transfers</span>
+                    </div>
+                    <div class="view-actions">
+                        <button class="btn-secondary" onclick="refreshTransfers()">
+                            <span>↻</span> Refresh
+                        </button>
+                        <button class="btn-primary" onclick="alert('New transfer - Coming soon')">
+                            <span>+</span> New Transfer
+                        </button>
+                    </div>
+                </div>
+
+                <div class="filter-bar">
+                    <div class="filter-group">
+                        <label>Status</label>
+                        <select id="transferStatusFilter" onchange="loadTransfers()">
+                            <option value="">All Statuses</option>
+                            <option value="PENDING">Pending Approval</option>
+                            <option value="IN_PROGRESS">In Progress</option>
+                            <option value="COMPLETED">Completed</option>
+                            <option value="CANCELLED">Cancelled</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="data-grid">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Transfer ID</th>
+                                <th>Patient MRN</th>
+                                <th>From Facility</th>
+                                <th>To Facility</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Requested</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transfersTableBody">
+                            <tr class="loading-row">
+                                <td colspan="8">Loading transfer queue...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Hospitals View -->
+            <div id="hospitals-view" class="view-container">
+                <div class="view-header">
+                    <div class="view-title">
+                        <h1>Network Facilities</h1>
+                        <span class="record-count" id="hospitalCount">0 facilities</span>
+                    </div>
+                    <div class="view-actions">
+                        <button class="btn-secondary" onclick="refreshHospitals()">
+                            <span>↻</span> Refresh
+                        </button>
+                        <button class="btn-primary" onclick="alert('Add facility - Coming soon')">
+                            <span>+</span> New Facility
+                        </button>
+                    </div>
+                </div>
+
+                <div class="data-grid">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Facility ID</th>
+                                <th>Facility Name</th>
+                                <th>Location</th>
+                                <th>Total Beds</th>
+                                <th>Available</th>
+                                <th>Occupancy</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hospitalsTableBody">
+                            <tr class="loading-row">
+                                <td colspan="7">Loading facilities...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Capacity View -->
+            <div id="capacity-view" class="view-container">
+                <div class="view-header">
+                    <div class="view-title">
+                        <h1>Real-Time Bed Capacity</h1>
+                    </div>
+                </div>
+
+                <div class="capacity-grid" id="capacityGrid">
+                    <div class="capacity-card loading">
+                        <div class="loading-text">Loading capacity data...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics View -->
+            <div id="analytics-view" class="view-container">
+                <div class="view-header">
+                    <div class="view-title">
+                        <h1>System Analytics</h1>
+                    </div>
+                </div>
+
+                <div class="analytics-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Patients</div>
+                        <div class="stat-value" id="totalPatients">--</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Active Transfers</div>
+                        <div class="stat-value" id="activeTransfers">--</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Network Capacity</div>
+                        <div class="stat-value" id="networkCapacity">--</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Critical Patients</div>
+                        <div class="stat-value critical" id="criticalPatients">--</div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
-
-    <!-- Modal Container -->
-    <div id="modalContainer"></div>
 
     <script src="app.js"></script>
 </body>
